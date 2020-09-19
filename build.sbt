@@ -25,12 +25,18 @@ lazy val mqttProducer =
     .in(file(mqttProducerName))
     .withId(mqttProducerName)
     .settings(settings)
+    .settings(
+      libraryDependencies ++=
+          (Lib.AkkaBundle ++ Lib.LogBundle)
+    )
+    //.settings(fork in run := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
     .disablePlugins(TpolecatPlugin)
 
 lazy val settings =
   Seq(
     Compile / unmanagedSourceDirectories := Seq((Compile / scalaSource).value),
+    cancelable in Global := true,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     scalafmtOnCompile := true,

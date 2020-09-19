@@ -18,3 +18,17 @@
 ## Academic
 
 - [Gap analysis in IoT platforms](https://arxiv.org/pdf/1502.01181.pdf) 
+- [Database temporal](https://www.researchgate.net/publication/309716432_Temporal_Data_in_Relational_Database_Systems_A_Comparison)
+- [paper](https://ieeexplore.ieee.org/abstract/document/7600359)
+- [paper](https://ieeexplore.ieee.org/abstract/document/8256910)
+- [paper](https://ieeexplore.ieee.org/abstract/document/9162327)
+- [paper](https://ieeexplore.ieee.org/abstract/document/8228095)
+
+
+## Utils
+- [Grafana as control panel](https://community.grafana.com/t/can-grafana-act-as-control-panel/2834/2)
+- [Grafana Go SDK](https://github.com/grafana/grafana-plugin-sdk-go)
+- [Awesome IoT](https://github.com/HQarroum/awesome-iot)
+- [EMQ X Cluster](https://docs.emqx.io/tutorial/v3/en/cluster/setup_start.html)
+- [Zio kafka](https://github.com/zio/zio-kafka)
+- [TinyGo](https://tinygo.org/)

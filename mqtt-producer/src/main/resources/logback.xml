@@ -1,0 +1,36 @@
+<configuration>
+
+
+    <variable name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}"/>
+    <variable name="LOG_TO_FILE" value="${LOG_TO_FILE:-false}"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>[%-5level] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%logger{0}]: %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <if condition='property("LOG_TO_FILE").contains("true")'>
+        <then>
+            <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+                <file>log/app.log</file>
+                <append>false</append>
+                <encoder>
+                    <pattern>[%-5level] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%logger{1}] <!--%X{sourceThread}--> -
+                        %msg%n
+                    </pattern>
+                </encoder>
+            </appender>
+            <root level="${LOG_LEVEL}">
+                <appender-ref ref="FILE"/>
+            </root>
+        </then>
+    </if>
+
+
+</configuration>
