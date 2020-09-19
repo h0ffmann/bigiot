@@ -8,12 +8,12 @@ Proxy messages between a MQTT Broker and a Kafka Broker.
 docker-compose up -d
 
 ...
-
 Creating zk ... done
 Creating kafka ... done
 Creating emqx          ... done
 Creating kafka-manager ... done
 ```
+http://localhost:9000/addCluster
 
 ### Environment variables configuration
 LOG_LEVEL=DEBUG   

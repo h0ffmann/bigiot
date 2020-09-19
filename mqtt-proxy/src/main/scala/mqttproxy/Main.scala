@@ -21,6 +21,8 @@ import akka.actor.{ ActorSystem, CoordinatedShutdown }
 import akka.stream.OverflowStrategy
 import akka.stream.alpakka.mqtt.MqttSubscriptions
 import akka.stream.alpakka.mqtt.scaladsl.MqttSource
+import mqttproxy.Protocol.MqttProxyConfig
+import mqttproxy.cfg.MqttProxyConfigLoader
 //import akka.stream.alpakka.mqtt.streaming.scaladsl.{ ActorMqttClientSession, Mqtt }
 //import akka.stream.alpakka.mqtt.streaming._
 import akka.stream.scaladsl.{ Flow, Keep, Sink, Source, SourceQueueWithComplete, Tcp }
@@ -37,51 +39,66 @@ import scala.concurrent.duration._
 object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
-
-    println(System.getenv("LOG_LEVEL"))
-    val id: String    = "mqtt-producer"
-    val host: String  = "localhost"
-    val port: Int     = 1883
-    val topic: String = "sensor_test_in"
+    val id = scala.util.Properties.envOrElse("CLIENT_ID", "mqtt-proxy")
 
     implicit val system: ActorSystem  = ActorSystem(id)
     implicit val ec: ExecutionContext = system.dispatcher
 
-    val connectionSettings = MqttConnectionSettings(
-      s"tcp://$host:$port",
-      "test-scala-client",
-      new MemoryPersistence
-    )
-
-    val sink: Sink[MqttMessage, Future[Done]] =
-      MqttSink(connectionSettings, MqttQoS.AtLeastOnce)
-
-    val a = MqttMessage(topic, ByteString("xyz"))
-      .withQos(MqttQoS.AtLeastOnce)
-      .withRetained(true)
-
-    val mqttSource: Source[MqttMessage, Future[Done]] =
-      MqttSource.atMostOnce(
-        connectionSettings.withClientId(clientId = "listener"),
-        MqttSubscriptions(Map(topic -> MqttQoS.AtLeastOnce)),
-        bufferSize = 8
-      )
-
-    val (subscribed, streamResult) = mqttSource
-      .map { x =>
-        logger.info(Console.GREEN + s" ${x.toString()}" + Console.RESET)
-        x
+    val cfg = MqttProxyConfigLoader(id)
+    cfg
+      .map { c =>
+        logger.info(c.toString)
       }
-      .toMat(Sink.seq)(Keep.both)
-      .run()
-
-    Source(List.fill(10)(a))
-      .throttle(1, 1.second)
-      .map { x =>
-        logger.info(Console.BLUE + s"${x.toString()}" + Console.RESET)
-        x
+      .recover {
+        case t: Throwable =>
+          logger.error("Initialization error.")
+          logger.error(t.getMessage)
+          CoordinatedShutdown(system).run(CoordinatedShutdown.incompatibleConfigurationDetectedReason)
       }
-      .runWith(sink)
+
+//    println(System.getenv("LOG_LEVEL"))
+//    val id: String    = "mqtt-producer"
+//    val host: String  = "localhost"
+//    val port: Int     = 1883
+//    val topic: String = "sensor_test_in"
+//
+
+//
+//    val connectionSettings = MqttConnectionSettings(
+//      s"tcp://$host:$port",
+//      "test-scala-client",
+//      new MemoryPersistence
+//    )
+//
+//    val sink: Sink[MqttMessage, Future[Done]] =
+//      MqttSink(connectionSettings, MqttQoS.AtLeastOnce)
+//
+//    val a = MqttMessage(topic, ByteString("xyz"))
+//      .withQos(MqttQoS.AtLeastOnce)
+//      .withRetained(true)
+//
+//    val mqttSource: Source[MqttMessage, Future[Done]] =
+//      MqttSource.atLeastOnce(
+//        connectionSettings.withClientId(clientId = "listener"),
+//        MqttSubscriptions(Map(topic -> MqttQoS.AtLeastOnce)),
+//        bufferSize = 8
+//      )
+//
+//    val (subscribed, streamResult) = mqttSource
+//      .map { x =>
+//        logger.info(Console.GREEN + s" ${x.toString()}" + Console.RESET)
+//        x
+//      }
+//      .toMat(Sink.seq)(Keep.both)
+//      .run()
+//
+//    Source(List.fill(10)(a))
+//      .throttle(1, 1.second)
+//      .map { x =>
+//        logger.info(Console.BLUE + s"${x.toString()}" + Console.RESET)
+//        x
+//      }
+//      .runWith(sink)
 
     CoordinatedShutdown(system)
       .addCancellableTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "cleanup") { () =>
