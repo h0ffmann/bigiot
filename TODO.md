@@ -19,6 +19,15 @@
 - [ ] Test EMQ X open source cluster
 = [ ] Create MQTT Kafka adapt source/sink
 
+LOG_LEVEL=DEBUG
+MQTT_HOST=localhost
+MQTT_PORT=1883
+MQTT_USER=user
+MQTT_PASS=p4ssw0rDY
+KAFKA_HOST=localhost
+KAFKA_PORT=9092
+TOPICS=sensor_in_1,sensor_in_2,sensor_in_3
+
 
 
 

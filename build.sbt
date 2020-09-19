@@ -3,33 +3,34 @@ import Dependencies._
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
 
-lazy val rootProjectName  = "bigiot"
-lazy val mqttProducerName = "mqtt-producer"
+lazy val rootProjectName = "bigiot"
+lazy val mqttProxyName   = "mqtt-proxy"
 
-lazy val scala212               = "2.12.12"
-lazy val scala213               = "2.13.3"
-lazy val supportedScalaVersions = List(scala212, scala213)
+lazy val scala213 = "2.13.3"
 
 lazy val root =
   project
     .in(file("."))
     .withId(rootProjectName)
-    .aggregate(mqttProducer)
+    .aggregate(mqttProxy)
     .settings(
       crossScalaVersions := Nil,
       publish / skip := true
     )
 
-lazy val mqttProducer =
+def envVarMapper(env: String): (String, String) =
+  s"$env" -> s"${sys.env(s"$env")}"
+
+lazy val mqttProxy =
   project
-    .in(file(mqttProducerName))
-    .withId(mqttProducerName)
+    .in(file(mqttProxyName))
+    .withId(mqttProxyName)
     .settings(settings)
     .settings(
       libraryDependencies ++=
           (Lib.AkkaBundle ++ Lib.LogBundle)
     )
-    //.settings(fork in run := true)
+    .settings(fork in run := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
     .disablePlugins(TpolecatPlugin)
 
@@ -60,15 +61,9 @@ lazy val settings =
     scalacOptions += "-Ywarn-unused"
   )
 
-//def scalacOptionsVersion(scalaVersion: String): Seq[String] =
-//  CrossVersion.partialVersion(scalaVersion) match {
-//    case Some((2L, major)) if major == 13L => Seq("-Ymacro-annotations")
-//    case _                                 => Seq.empty
-//  }
-
 val stages = List("/compile", "/test", "/assembly", "/publishLocal")
 
-addCommandAlias("publishAll", stages.map(s => mqttProducerName + s).mkString(";+ ", ";+", ""))
+addCommandAlias("publishAll", stages.map(s => mqttProxyName + s).mkString(";+ ", ";+", ""))
 addCommandAlias("slibs", "show libraryDependencies")
 addCommandAlias("checkdeps", ";dependencyUpdates; reload plugins; dependencyUpdates; reload return")
 addCommandAlias("fmt", "scalafmtAll")

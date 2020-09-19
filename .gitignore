@@ -24,5 +24,6 @@ docs/src/main/tut/contributing.md
 .ignore
 result*
 *.sbtpts
+*.javaopts
 *.env
 

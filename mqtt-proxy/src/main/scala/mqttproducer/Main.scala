@@ -38,6 +38,7 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
+    println(System.getenv("LOG_LEVEL"))
     val id: String    = "mqtt-producer"
     val host: String  = "localhost"
     val port: Int     = 1883
@@ -74,7 +75,7 @@ object Main extends LazyLogging {
       .toMat(Sink.seq)(Keep.both)
       .run()
 
-    Source(List.fill(200)(a))
+    Source(List.fill(10)(a))
       .throttle(1, 1.second)
       .map { x =>
         logger.info(Console.BLUE + s"${x.toString()}" + Console.RESET)
