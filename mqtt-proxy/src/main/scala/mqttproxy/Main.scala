@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mqttproducer
+package mqttproxy
 
 import akka.{ Done, NotUsed }
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
