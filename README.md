@@ -4,7 +4,16 @@
 Proxy messages between a MQTT Broker and a Kafka Broker.
 
 ### Infrastructure
-TBI
+```bash
+docker-compose up -d
+
+...
+
+Creating zk ... done
+Creating kafka ... done
+Creating emqx          ... done
+Creating kafka-manager ... done
+```
 
 ### Environment variables configuration
 LOG_LEVEL=DEBUG   
