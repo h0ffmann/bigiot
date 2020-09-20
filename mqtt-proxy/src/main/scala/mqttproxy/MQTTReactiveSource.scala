@@ -28,7 +28,14 @@ import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
 
-object MQTTSource extends LazyLogging {
+object MQTTReactiveSource extends LazyLogging {
+
+  def createConnectionSettings(urlConn: String, id: String): MqttConnectionSettings =
+    MqttConnectionSettings(
+      urlConn,
+      id,
+      new MemoryPersistence
+    )
 
   def apply(mqttProxyConfig: MqttProxyConfig)(implicit ec: ExecutionContext): Source[MqttMessageWithAck, NotUsed] = {
 
@@ -37,39 +44,41 @@ object MQTTSource extends LazyLogging {
     val authUser      = mqttProxyConfig.mqttAuth.map(_._1).getOrElse("")
     val authPassword  = mqttProxyConfig.mqttAuth.map(_._2).getOrElse("")
 
-    val connSettings = MqttConnectionSettings(
-      urlConnStr,
-      mqttProxyConfig.clientId,
-      new MemoryPersistence
-    ).withAutomaticReconnect(true)
+    val connectionSettings = createConnectionSettings(urlConnStr, mqttProxyConfig.clientId)
+      .withAutomaticReconnect(true)
       .withAuth(authUser, authPassword)
 
-    RestartSource.onFailuresWithBackoff(
-      minBackoff = 15.seconds,
-      maxBackoff = 2.hours,
-      randomFactor = 0
-    ) { () =>
-      MqttSource
-        .atLeastOnce(
-          connSettings
-            .withClientId(clientId = mqttProxyConfig.clientId),
-          MqttSubscriptions(subscriptions),
-          bufferSize = 8
-        )
-        .mapMaterializedValue(
-          f =>
-            f.onComplete {
-              case Failure(exception) =>
-                logger.error(Console.RED + s"Failed to connect to MQTT Broker $exception" + Console.RESET)
+    RestartSource
+      .onFailuresWithBackoff(
+        minBackoff = 15.seconds,
+        maxBackoff = 2.hours,
+        randomFactor = 0
+      ) { () =>
+        MqttSource
+          .atLeastOnce(
+            connectionSettings
+              .withClientId(clientId = mqttProxyConfig.clientId),
+            MqttSubscriptions(subscriptions),
+            bufferSize = 8
+          )
+          .mapMaterializedValue(
+            f =>
+              f.onComplete {
+                case Failure(exception) =>
+                  logger.error(Console.RED + s"Failed to connect to MQTT Broker $exception" + Console.RESET)
 
-              case Success(_) =>
-                logger.info(Console.GREEN + s"Successfully connected to broker $urlConnStr " + Console.RESET)
-                logger.info(
-                  //Console.GREEN + s"${connSettings.toString().flatMap(c => if (c == ',') s"$c\n" else c.toString)}" + Console.RESET
-                  Console.GREEN + s"${connSettings.toString()}" + Console.RESET
-                )
-            }
-        )
-    }
+                case Success(_) =>
+                  logger.info(Console.GREEN + s"Successfully connected to broker $urlConnStr " + Console.RESET)
+                  logger.info(
+                    //Console.GREEN + s"${connSettings.toString().flatMap(c => if (c == ',') s"$c\n" else c.toString)}" + Console.RESET
+                    Console.GREEN + s"${connectionSettings.toString()}" + Console.RESET
+                  )
+              }
+          )
+      }
+      .map { x =>
+        logger.debug(Console.BOLD + s"Message from source: ${x.message}" + Console.RESET)
+        x
+      }
   }
 }

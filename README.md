@@ -19,12 +19,13 @@ Creating kafka-manager ... done
 http://localhost:9000/addCluster
 
 ### Environment variables configuration
-LOG_LEVEL=DEBUG   
-MQTT_HOST=localhost   
-MQTT_PORT=1883   
-MQTT_USER=...   
-MQTT_PASS=...   
-KAFKA_HOST=localhost   
-KAFKA_PORT=9092   
-TOPICS_IN=sensor_in_1,sensor_in_2,sensor_in_3   
-TOPICS_OUT=sensor_out_1,sensor_out_2,sensor_out_3   
+```
+LOG_LEVEL=DEBUG
+CLIENT_ID=mqtt-proxy
+MQTT_HOST=localhost
+MQTT_PORT=1883
+KAFKA_HOST=localhost
+KAFKA_PORT=9092
+TOPICS_IN=sensor-in-1
+TOPICS_OUT=sensor-out-1
+```
