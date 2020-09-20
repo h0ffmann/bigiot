@@ -26,4 +26,5 @@ MQTT_USER=...
 MQTT_PASS=...   
 KAFKA_HOST=localhost   
 KAFKA_PORT=9092   
-TOPICS=sensor_in_1,sensor_in_2,sensor_in_3   
+TOPICS_IN=sensor_in_1,sensor_in_2,sensor_in_3   
+TOPICS_OUT=sensor_out_1,sensor_out_2,sensor_out_3   
