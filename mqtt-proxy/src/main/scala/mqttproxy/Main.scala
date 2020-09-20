@@ -45,20 +45,21 @@ object Main extends LazyLogging {
     implicit val ec: ExecutionContext = sys.dispatcher
 
     val configLoad = MqttProxyConfigLoader(id)
-    configLoad
-      .map { cfg =>
-        sys.log.info(cfg.toString)
-        MQTTSource(cfg)
-          .map { x =>
-            sys.log.debug(Console.GREEN + s" ${x.toString}" + Console.RESET)
-            x
-          }
-          .toMat(Sink.seq)(Keep.left)
-          .run()
-      }
+
+    (for {
+      cfg <- configLoad
+      _   <- KafkaUtils.checkTopicsExistence(cfg, cfg.topicsIn ++ cfg.topicsOut: _*)
+      _ = MQTTSource(cfg)
+        .map { x =>
+          sys.log.debug(Console.GREEN + s" ${x.toString}" + Console.RESET)
+          x
+        }
+        .toMat(Sink.seq)(Keep.left)
+        .run()
+    } yield ())
       .recover {
         case t: Throwable =>
-          sys.log.error(t.getMessage)
+          sys.log.error(Console.RED + t.getMessage + Console.RESET)
           CoordinatedShutdown(sys)
             .run(
               CoordinatedShutdown.incompatibleConfigurationDetectedReason
