@@ -53,7 +53,7 @@ object Main extends LazyLogging {
             sys.log.debug(Console.GREEN + s" ${x.toString}" + Console.RESET)
             x
           }
-          .toMat(Sink.seq)(Keep.both)
+          .toMat(Sink.seq)(Keep.left)
           .run()
       }
       .recover {

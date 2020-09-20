@@ -65,7 +65,8 @@ object MQTTSource extends LazyLogging {
               case Success(_) =>
                 logger.info(Console.GREEN + s"Successfully connected to broker $urlConnStr " + Console.RESET)
                 logger.info(
-                  Console.GREEN + s"${connSettings.toString().flatMap(c => if (c == ',') s"$c\n" else c.toString)}" + Console.RESET
+                  //Console.GREEN + s"${connSettings.toString().flatMap(c => if (c == ',') s"$c\n" else c.toString)}" + Console.RESET
+                  Console.GREEN + s"${connSettings.toString()}" + Console.RESET
                 )
             }
         )

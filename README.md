@@ -1,5 +1,8 @@
 # Big IoT
 
+![Data Flow](./img/BigIoT.png)
+
+
 ## MQTT Proxy
 Proxy messages between a MQTT Broker and a Kafka Broker.
 
