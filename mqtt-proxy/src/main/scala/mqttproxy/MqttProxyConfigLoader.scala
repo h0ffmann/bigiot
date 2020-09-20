@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hoffmann
+ * Copyright 2020 Matheus Hoffmann
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package mqttproxy.cfg
+package mqttproxy
 
+import mqttproxy.Error.MqttProxyConfigError
 import mqttproxy.Protocol.MqttProxyConfig
 
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.Try
 
 object MqttProxyConfigLoader {
+
   def apply(id: String)(implicit ec: ExecutionContext): Future[MqttProxyConfig] =
     Future {
 
@@ -43,12 +44,12 @@ object MqttProxyConfigLoader {
 
       for {
         _ <- if (mqttUser.isEmpty ^ mqttPass.isEmpty) {
-              Future.failed(new IllegalArgumentException("mqtt auth must be empty/defined for user/pass"))
+              Future.failed(MqttProxyConfigError("mqtt auth must be empty/defined for user/pass"))
             } else {
               Future.unit
             }
         _ <- if (topicInOpt.isEmpty && topicOutOpt.isEmpty) {
-              Future.failed(new IllegalArgumentException("topics in/out must be defined"))
+              Future.failed(MqttProxyConfigError("topics in/out must be defined"))
             } else {
               Future.unit
             }
@@ -64,5 +65,10 @@ object MqttProxyConfigLoader {
           topicsOut = topicOutOpt.getOrElse(List.empty[String])
         )
       }
+    }.recoverWith {
+      case t: MqttProxyConfigError =>
+        Future.failed(t)
+      case t: Throwable =>
+        Future.failed(MqttProxyConfigError(t.getMessage))
     }.flatten
 }

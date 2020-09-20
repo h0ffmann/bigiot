@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hoffmann
+ * Copyright 2020 Matheus Hoffmann
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import akka.{ Done, NotUsed }
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
 import akka.stream.OverflowStrategy
 import akka.stream.alpakka.mqtt.MqttSubscriptions
+import akka.stream.alpakka.mqtt.scaladsl.MqttMessageWithAck
 import akka.stream.alpakka.mqtt.scaladsl.MqttSource
 import mqttproxy.Protocol.MqttProxyConfig
-import mqttproxy.cfg.MqttProxyConfigLoader
 //import akka.stream.alpakka.mqtt.streaming.scaladsl.{ ActorMqttClientSession, Mqtt }
 //import akka.stream.alpakka.mqtt.streaming._
 import akka.stream.scaladsl.{ Flow, Keep, Sink, Source, SourceQueueWithComplete, Tcp }
@@ -41,19 +41,28 @@ object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
     val id = scala.util.Properties.envOrElse("CLIENT_ID", "mqtt-proxy")
 
-    implicit val system: ActorSystem  = ActorSystem(id)
-    implicit val ec: ExecutionContext = system.dispatcher
+    implicit val sys: ActorSystem     = ActorSystem(id)
+    implicit val ec: ExecutionContext = sys.dispatcher
 
-    val cfg = MqttProxyConfigLoader(id)
-    cfg
-      .map { c =>
-        logger.info(c.toString)
+    val configLoad = MqttProxyConfigLoader(id)
+    configLoad
+      .map { cfg =>
+        sys.log.info(cfg.toString)
+        MQTTSource(cfg)
+          .map { x =>
+            sys.log.debug(Console.GREEN + s" ${x.toString}" + Console.RESET)
+            x
+          }
+          .toMat(Sink.seq)(Keep.both)
+          .run()
       }
       .recover {
         case t: Throwable =>
-          logger.error("Initialization error.")
-          logger.error(t.getMessage)
-          CoordinatedShutdown(system).run(CoordinatedShutdown.incompatibleConfigurationDetectedReason)
+          sys.log.error(t.getMessage)
+          CoordinatedShutdown(sys)
+            .run(
+              CoordinatedShutdown.incompatibleConfigurationDetectedReason
+            )
       }
 
 //    println(System.getenv("LOG_LEVEL"))
@@ -100,10 +109,10 @@ object Main extends LazyLogging {
 //      }
 //      .runWith(sink)
 
-    CoordinatedShutdown(system)
+    CoordinatedShutdown(sys)
       .addCancellableTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "cleanup") { () =>
         Future {
-          system.log.info("Received coordinated shutdown")
+          sys.log.info("===================================================================")
           Done
         }
       }

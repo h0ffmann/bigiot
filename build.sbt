@@ -18,9 +18,6 @@ lazy val root =
       publish / skip := true
     )
 
-def envVarMapper(env: String): (String, String) =
-  s"$env" -> s"${sys.env(s"$env")}"
-
 lazy val mqttProxy =
   project
     .in(file(mqttProxyName))
@@ -45,7 +42,7 @@ lazy val settings =
     scalaVersion := scala213,
     version := "0.0.1",
     organization := "me.mhoffmann",
-    organizationName := "Hoffmann",
+    organizationName := "Matheus Hoffmann",
     startYear := Some(2020),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("https://me.hoffmann")),

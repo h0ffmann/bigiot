@@ -15,8 +15,8 @@ object Dependencies {
     val akkaSlf4j   = "com.typesafe.akka"  %% "akka-slf4j"               % Version.akka
 
     val logback      = "ch.qos.logback"             % "logback-classic" % "1.2.3"
-    val janino       = "org.codehaus.janino"        % "janino"          % "3.1.0"
-    val slf4j        = "org.slf4j"                  % "slf4j-api"       % "1.7.25"
+    val janino       = "org.codehaus.janino"        % "janino"          % "3.1.2"
+    val slf4j        = "org.slf4j"                  % "slf4j-api"       % "1.7.30"
     val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2"
 
     val AkkaBundle = Seq(akkaTyped, akkaStream, alpakkaMqtt, akkaSlf4j)
