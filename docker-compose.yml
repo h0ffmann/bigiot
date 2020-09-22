@@ -7,6 +7,7 @@ services:
     ports:
       - "2181:2181"
 
+
   kafka:
     image: wurstmeister/kafka:2.11-1.1.1
     container_name: kafka
@@ -16,26 +17,28 @@ services:
     depends_on:
       - zk
     environment:
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: "1099"
       KAFKA_ZOOKEEPER_CONNECT: zk:2181
       KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9094,OUTSIDE://localhost:9092
       KAFKA_LISTENERS: INSIDE://:9094,OUTSIDE://:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
 
+
   kafka-manager:
     container_name: kafka-manager
-    image: hlebalbau/kafka-manager:1.3.3.16
+    image: hlebalbau/kafka-manager:1.3.3.23
     restart: on-failure
     depends_on:
       - kafka
       - zk
     command: -Dconfig.file=/kafka-manager/conf/application.conf -Dapplication.home=/kafkamanager
     environment:
-      - ZK_HOSTS=localhost
+      - ZK_HOSTS=zk:2181
       - APPLICATION_SECRET=letmein
     ports:
       - "9000:9000"
-    network_mode: "host"
 
   emqx:
     container_name: emqx
