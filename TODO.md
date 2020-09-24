@@ -3,13 +3,13 @@
 ## Docs
 
 - [x] Finish proposal first version
-- [ ] Finish proposal v2
+- [x] Finish proposal v2
+- [ ] Finish proposal final
 - [ ] Start doc project
 
 ## CICD
 - [ ] Github actions / Gitlab CICD
-- [ ] Docker emqx (single/cluster)
-- [ ] Docker kafka (single/cluster)
+= [ ] root user in prom
 
 ## MQTT
 

@@ -55,26 +55,16 @@ services:
       - "18083:18083"
       - "1883:1883"
 
-#  kafka-exp:
-#    container_name: kafka-exp
-#    image: danielqsj/kafka-exporter:latest
-#    restart: on-failure
-#    depends_on:
-#      - kafka
-#    ports:
-#      - "9308:9308"
-#    command: "--kafka.server=kafka:9092"
-
-
-#  prometheus:
-#    image: prom/prometheus:v2.21.0
-#    container_name: prometheus
-#    volumes:
-#      - ./config:/prometheus
-#      - .tmp/:/data
-#    command:
-#      - '--config.file=/prometheus/prometheus.yml'
-#      - '--storage.tsdb.path=/data'
-#    ports:
-#      - 9090:9090
-#    restart: on-failure
+  prometheus:
+    image: prom/prometheus:v2.21.0
+    user: root
+    container_name: prometheus
+    volumes:
+      - ./config:/prometheus
+      - .tmp/:/data
+    command:
+      - '--config.file=/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/data'
+    ports:
+      - 9090:9090
+    restart: on-failure
