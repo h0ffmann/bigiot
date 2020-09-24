@@ -14,8 +14,11 @@ services:
     restart: on-failure
     ports:
       - "9092:9092"
+      - "9999:9999"
     depends_on:
       - zk
+    volumes:
+      - "./agent:/opt/kafka/metrics"
     environment:
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=1099"
       JMX_PORT: "1099"
@@ -24,6 +27,7 @@ services:
       KAFKA_LISTENERS: INSIDE://:9094,OUTSIDE://:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_OPTS: "-javaagent:/opt/kafka/metrics/jmx_prometheus_javaagent-0.14.0.jar=9999:/opt/kafka/metrics/config.yml"
 
 
   kafka-manager:
@@ -50,3 +54,27 @@ services:
     ports:
       - "18083:18083"
       - "1883:1883"
+
+#  kafka-exp:
+#    container_name: kafka-exp
+#    image: danielqsj/kafka-exporter:latest
+#    restart: on-failure
+#    depends_on:
+#      - kafka
+#    ports:
+#      - "9308:9308"
+#    command: "--kafka.server=kafka:9092"
+
+
+#  prometheus:
+#    image: prom/prometheus:v2.21.0
+#    container_name: prometheus
+#    volumes:
+#      - ./config:/prometheus
+#      - .tmp/:/data
+#    command:
+#      - '--config.file=/prometheus/prometheus.yml'
+#      - '--storage.tsdb.path=/data'
+#    ports:
+#      - 9090:9090
+#    restart: on-failure
