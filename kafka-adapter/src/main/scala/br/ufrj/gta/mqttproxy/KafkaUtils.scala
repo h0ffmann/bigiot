@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package mqttproxy
+package br.ufrj.gta.mqttproxy
 
 import java.util.Properties
 
 import com.typesafe.scalalogging.LazyLogging
-import mqttproxy.Error.MqttProxyConfigError
-import mqttproxy.Protocol.MqttProxyConfig
+import br.ufrj.gta.mqttproxy.Error.MqttProxyConfigError
+import br.ufrj.gta.mqttproxy.Protocol.MqttProxyConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 import scala.concurrent.{ ExecutionContext, Future }

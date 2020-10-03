@@ -1,10 +1,8 @@
 import Dependencies._
 
-ThisBuild / scalafixScalaBinaryVersion := "2.13"
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
-
-lazy val rootProjectName = "bigiot"
-lazy val mqttProxyName   = "mqtt-proxy"
+lazy val rootProjectName       = "bigiot"
+lazy val kafkaBridgeModuleName = "kafka-adapter"
+lazy val commonModuleName      = "common"
 
 lazy val scala213 = "2.13.3"
 
@@ -12,16 +10,29 @@ lazy val root =
   project
     .in(file("."))
     .withId(rootProjectName)
-    .aggregate(mqttProxy)
+    .aggregate(kafkaBridge, common)
     .settings(
       crossScalaVersions := Nil,
       publish / skip := true
     )
 
-lazy val mqttProxy =
+lazy val common =
   project
-    .in(file(mqttProxyName))
-    .withId(mqttProxyName)
+    .in(file(commonModuleName))
+    .withId(commonModuleName)
+    .settings(settings)
+    .settings(
+      libraryDependencies ++=
+          (Lib.AkkaBundle ++ Lib.LogBundle)
+    )
+    .settings(fork in run := true)
+    .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
+    .disablePlugins(TpolecatPlugin)
+
+lazy val kafkaBridge =
+  project
+    .in(file(kafkaBridgeModuleName))
+    .withId(kafkaBridgeModuleName)
     .settings(settings)
     .settings(
       libraryDependencies ++=
@@ -45,7 +56,7 @@ lazy val settings =
     organizationName := "Matheus Hoffmann",
     startYear := Some(2020),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-    homepage := Some(url("https://me.hoffmann")),
+    homepage := Some(url("https://www.gta.ufrj.br/")),
     developers := List(
           Developer(
             id = "h0ffmann",
@@ -55,12 +66,14 @@ lazy val settings =
           )
         ),
     parallelExecution in Test := false,
-    scalacOptions += "-Ywarn-unused"
+    scalacOptions += "-Ywarn-unused",
+    scalafixScalaBinaryVersion := "2.13",
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
   )
 
 val stages = List("/compile", "/test", "/assembly", "/publishLocal")
 
-addCommandAlias("publishAll", stages.map(s => mqttProxyName + s).mkString(";+ ", ";+", ""))
+addCommandAlias("publishAll", stages.map(s => kafkaBridgeModuleName + s).mkString(";+ ", ";+", ""))
 addCommandAlias("slibs", "show libraryDependencies")
 addCommandAlias("checkdeps", ";dependencyUpdates; reload plugins; dependencyUpdates; reload return")
 addCommandAlias("fmt", "scalafmtAll")

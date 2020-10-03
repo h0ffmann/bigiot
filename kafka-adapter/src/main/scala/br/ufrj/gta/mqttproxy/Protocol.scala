@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mqttproxy
+package br.ufrj.gta.mqttproxy
 
 object Protocol {
 

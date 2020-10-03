@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mqttproxy
+package br.ufrj.gta.mqttproxy
 
 import akka.Done
 import akka.actor.{ ActorSystem, CoordinatedShutdown }

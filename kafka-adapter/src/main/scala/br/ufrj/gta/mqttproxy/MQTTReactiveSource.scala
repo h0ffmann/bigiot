@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package mqttproxy
+package br.ufrj.gta.mqttproxy
 
 import akka.NotUsed
 import akka.stream.alpakka.mqtt.{ MqttConnectionSettings, MqttQoS, MqttSubscriptions }
 import akka.stream.alpakka.mqtt.scaladsl.{ MqttMessageWithAck, MqttSource }
 import akka.stream.scaladsl.{ RestartSource, RestartWithBackoffSource, Source }
 import com.typesafe.scalalogging.LazyLogging
-import mqttproxy.Protocol.MqttProxyConfig
+import br.ufrj.gta.mqttproxy.Protocol.MqttProxyConfig
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
 import scala.concurrent.duration._
