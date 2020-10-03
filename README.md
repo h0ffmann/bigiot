@@ -4,25 +4,26 @@
   <img src="https://github.com/h0ffmann/bigiot/blob/master/img/bigiot.png" alt="BigIoT Architecture"/>
 </p>
 
-
-
-## MQTT Proxy
-Proxy messages between a MQTT Broker and a Kafka Broker.
-
-### Infrastructure
+# Infrastructure
 ```bash
-docker-compose up -d
-
+docker-compose up -d 
 ...
-Creating zk ... done
-Creating kafka ... done
+Creating network "bigiot_default" with the default driver
+Creating zk         ... done
+Creating prometheus ... done
+Creating grafana    ... done
+Creating kafka      ... done
 Creating emqx          ... done
 Creating kafka-manager ... done
 ```
-http://localhost:9000/addCluster
+
+## Kafka adapter
+Proxy messages between EMQ X Broker and the Kafka Broker.
+
+- http://localhost:9000/addCluster
 
 ### Environment variables configuration
-```
+```bash
 LOG_LEVEL=DEBUG
 CLIENT_ID=mqtt-proxy
 MQTT_HOST=localhost
