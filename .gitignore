@@ -28,4 +28,5 @@ result*
 *.env
 *tmp
 *bsp
+.bsp/sbt.json
 grafana/
