@@ -1,5 +1,13 @@
 version: '3'
 services:
+  grafana:
+    container_name: grafana
+    user: root
+    image: grafana/grafana
+    volumes:
+      - ./grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
   zk:
     image: zookeeper:3.4.10
     container_name: zk

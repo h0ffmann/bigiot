@@ -1,6 +1,9 @@
 # Big IoT
 
-![Data Flow](./img/BigIoT.png)
+<p align="center">
+  <img src="https://github.com/h0ffmann/bigiot/blob/master/img/bigiot.png" alt="BigIoT Architecture"/>
+</p>
+
 
 
 ## MQTT Proxy

@@ -26,4 +26,5 @@ result*
 *.sbtpts
 *.javaopts
 *.env
-
+*tmp
+*bsp
