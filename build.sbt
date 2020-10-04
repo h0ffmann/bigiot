@@ -23,11 +23,16 @@ lazy val common =
     .settings(settings)
     .settings(
       libraryDependencies ++=
-          (Lib.AkkaBundle ++ Lib.LogBundle)
+          Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.SerBundle, Lib.StatsBundle, Lib.TestBundle).flatten
+    )
+    .settings(
+      PB.targets in Compile := Seq(
+            scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
+          )
     )
     .settings(fork in run := true)
-    .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
-    .disablePlugins(TpolecatPlugin)
+    .settings(testFrameworks += new TestFramework("munit.Framework"))
+    .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin, ProtocPlugin)
 
 lazy val kafkaBridge =
   project
@@ -44,6 +49,15 @@ lazy val kafkaBridge =
 
 lazy val settings =
   Seq(
+    resolvers ++= Seq(
+          Resolver.defaultLocal,
+          Resolver.mavenLocal,
+          Resolver.mavenCentral,
+          Classpaths.typesafeReleases,
+          Classpaths.sbtPluginReleases //,
+//          Resolver.bintrayRepo("rainier", "maven"),
+//          Resolver.bintrayRepo("cibotech", "public")
+        ),
     Compile / unmanagedSourceDirectories := Seq((Compile / scalaSource).value),
     cancelable in Global := true,
     semanticdbEnabled := true,
@@ -66,9 +80,7 @@ lazy val settings =
           )
         ),
     parallelExecution in Test := false,
-    scalacOptions += "-Ywarn-unused",
-    scalafixScalaBinaryVersion := "2.13",
-    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
+    scalacOptions += "-Ywarn-unused"
   )
 
 val stages = List("/compile", "/test", "/assembly", "/publishLocal")
@@ -82,12 +94,4 @@ addCommandAlias("fix", "all compile:scalafix test:scalafix")
 addCommandAlias(
   "fixCheck",
   "; compile:scalafix --check ; test:scalafix --check"
-)
-
-resolvers in ThisBuild ++= Seq(
-  Resolver.defaultLocal,
-  Resolver.mavenLocal,
-  Resolver.mavenCentral,
-  Classpaths.typesafeReleases,
-  Classpaths.sbtPluginReleases
 )

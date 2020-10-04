@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package br.ufrj.gta.mqttproxy
+package br.ufrj.gta.kafka.adapter
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -25,8 +25,8 @@ import akka.stream.alpakka.mqtt.scaladsl.MqttMessageWithAck
 import akka.stream.scaladsl.{ Flow, Source }
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import br.ufrj.gta.mqttproxy.MQTTReactiveSource.logger
-import br.ufrj.gta.mqttproxy.Protocol.MqttProxyConfig
+import MQTTReactiveSource.logger
+import Protocol.MqttProxyConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package br.ufrj.gta.mqttproxy
+package br.ufrj.gta.kafka.adapter
 
 object Protocol {
 

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package br.ufrj.gta.mqttproxy
+package br.ufrj.gta.kafka.adapter
 
-import br.ufrj.gta.mqttproxy.Error.MqttProxyConfigError
-import br.ufrj.gta.mqttproxy.Protocol.MqttProxyConfig
+import br.ufrj.gta.kafka.adapter.Protocol.MqttProxyConfig
+import Error.MqttProxyConfigError
+import Protocol.MqttProxyConfig
 
 import scala.concurrent.{ ExecutionContext, Future }
 
