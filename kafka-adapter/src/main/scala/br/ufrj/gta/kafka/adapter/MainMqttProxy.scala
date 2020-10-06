@@ -37,7 +37,7 @@ object MainMqttProxy extends LazyLogging {
 
     (for {
       cfg <- MqttProxyConfigLoader(id)
-      _   <- KafkaUtils.checkTopicsExistence(cfg, cfg.topicsIn ++ cfg.topicsOut: _*)
+//      _   <- KafkaUtils.checkTopicsExistence(cfg, cfg.topicsIn ++ cfg.topicsOut: _*)
       producerCfg = KafkaFlow.createProducerSettings(cfg)
 
       _ = MQTTReactiveSource(cfg)
@@ -46,17 +46,6 @@ object MainMqttProxy extends LazyLogging {
         .toMat(Sink.seq)(Keep.left)
         .run()
 
-      //test
-      cS = MQTTReactiveSource.createConnectionSettings(
-        s"tcp://${cfg.mqttHost}:${cfg.mqttPort}",
-        "test-publisher"
-      )
-      testSink = MqttSink(cS, MqttQoS.AtLeastOnce)
-      _ = Source(
-        List.fill(100)(())
-      ).map(_ => createFakeMessage(cfg.topicsIn.head))
-        .throttle(1, 1.second)
-        .runWith(testSink)
     } yield ())
       .recover {
         case t: Throwable =>
@@ -75,10 +64,5 @@ object MainMqttProxy extends LazyLogging {
         }
       }
   }
-
-  def createFakeMessage(topic: String): MqttMessage =
-    MqttMessage(topic, ByteString(s"${System.currentTimeMillis()}"))
-      .withQos(MqttQoS.AtLeastOnce)
-      .withRetained(true)
 
 }

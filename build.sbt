@@ -41,11 +41,12 @@ lazy val kafkaBridge =
     .settings(settings)
     .settings(
       libraryDependencies ++=
-          (Lib.AkkaBundle ++ Lib.LogBundle)
+          Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.TestBundle).flatten
     )
     .settings(fork in run := true)
+    .settings(Defaults.itSettings)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
-    .disablePlugins(TpolecatPlugin)
+    .dependsOn(common)
 
 lazy val settings =
   Seq(
