@@ -46,14 +46,19 @@ object KafkaFlow extends LazyLogging {
     Flow[MqttMessageWithAck]
       .map { msg =>
         ProducerMessage.single(
-          new ProducerRecord[String, String](msg.message.topic + "aaa", msg.message.payload.toString()),
+          new ProducerRecord[String, String](
+            msg.message.topic + "aaa",
+            msg.message.payload.toString()
+          ),
           msg
         )
       }
       .via(Producer.flexiFlow[String, String, MqttMessageWithAck](producerSettings))
       .map(x => x.passThrough)
       .map { x =>
-        logger.debug(Console.MAGENTA + s"Message republished: ${x.message.payload.utf8String}" + Console.RESET)
+        logger.debug(
+          Console.MAGENTA + s"Message republished: ${x.message.payload.utf8String}" + Console.RESET
+        )
         x
       }
 

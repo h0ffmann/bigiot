@@ -37,7 +37,9 @@ object MQTTReactiveSource extends LazyLogging {
       new MemoryPersistence
     )
 
-  def apply(mqttProxyConfig: MqttProxyConfig)(implicit ec: ExecutionContext): Source[MqttMessageWithAck, NotUsed] = {
+  def apply(
+      mqttProxyConfig: MqttProxyConfig
+  )(implicit ec: ExecutionContext): Source[MqttMessageWithAck, NotUsed] = {
 
     val urlConnStr    = s"tcp://${mqttProxyConfig.mqttHost}:${mqttProxyConfig.mqttPort}"
     val subscriptions = mqttProxyConfig.topicsIn.map(t => t -> MqttQoS.atLeastOnce).toMap
@@ -65,10 +67,14 @@ object MQTTReactiveSource extends LazyLogging {
             f =>
               f.onComplete {
                 case Failure(exception) =>
-                  logger.error(Console.RED + s"Failed to connect to MQTT Broker $exception" + Console.RESET)
+                  logger.error(
+                    Console.RED + s"Failed to connect to MQTT Broker $exception" + Console.RESET
+                  )
 
                 case Success(_) =>
-                  logger.info(Console.GREEN + s"Successfully connected to broker $urlConnStr " + Console.RESET)
+                  logger.info(
+                    Console.GREEN + s"Successfully connected to broker $urlConnStr " + Console.RESET
+                  )
                   logger.info(
                     //Console.GREEN + s"${connSettings.toString().flatMap(c => if (c == ',') s"$c\n" else c.toString)}" + Console.RESET
                     Console.GREEN + s"${connectionSettings.toString()}" + Console.RESET

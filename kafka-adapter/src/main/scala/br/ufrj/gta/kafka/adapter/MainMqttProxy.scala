@@ -47,7 +47,10 @@ object MainMqttProxy extends LazyLogging {
         .run()
 
       //test
-      cS       = MQTTReactiveSource.createConnectionSettings(s"tcp://${cfg.mqttHost}:${cfg.mqttPort}", "test-publisher")
+      cS = MQTTReactiveSource.createConnectionSettings(
+        s"tcp://${cfg.mqttHost}:${cfg.mqttPort}",
+        "test-publisher"
+      )
       testSink = MqttSink(cS, MqttQoS.AtLeastOnce)
       _ = Source(
         List.fill(100)(())
