@@ -1,7 +1,8 @@
 # Big IoT
 
+- [Proposal](./docs/proposal/PropostaTCCMHoffmann-unsigned.pdf)
 <p align="center">
-  <img src="https://github.com/h0ffmann/bigiot/blob/master/img/bigiot.png" alt="BigIoT Architecture"/>
+  <img src="https://github.com/h0ffmann/bigiot/blob/master/img/bigiot.png" alt="Big IoT Architecture"/>
 </p>
 
 # Infrastructure
@@ -24,7 +25,6 @@ Proxy messages between EMQ X Broker and the Kafka Broker.
 
 ### Environment variables configuration
 ```bash
-LOG_LEVEL=DEBUG
 CLIENT_ID=mqtt-proxy
 MQTT_HOST=localhost
 MQTT_PORT=1883
