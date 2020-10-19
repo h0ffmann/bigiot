@@ -18,22 +18,21 @@ package br.ufrj.gta.kafka.adapter
 
 import java.util.Properties
 
+import br.ufrj.gta.kafka.adapter.Protocol.KafkaAdapterConfig
 import com.typesafe.scalalogging.LazyLogging
-import Error.MqttProxyConfigError
-import Protocol.MqttProxyConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 import scala.concurrent.{ ExecutionContext, Future }
 
 object KafkaUtils extends LazyLogging {
-  def checkTopicsExistence(mqttProxyConfig: MqttProxyConfig, topicList: String*)(
+  def checkTopicsExistence(config: KafkaAdapterConfig)(
       implicit ec: ExecutionContext
   ): Future[Unit] =
     Future {
-      logger.debug(s"Looking for the existence of topics $topicList")
+      logger.debug(s"Looking for the existence of topics ${config.adapter.topicsIn}")
       val props = new Properties()
-      props.put("bootstrap.servers", s"${mqttProxyConfig.kafkaHost}:${mqttProxyConfig.kafkaPort}")
-      props.put("group.id", s"${mqttProxyConfig.clientId}") //todo may be add random factor
+      props.put("bootstrap.servers", s"${config.kafka.host}:${config.kafka.port}")
+      props.put("group.id", s"${config.adapter.clientId}")
       props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
       props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
       val consumer      = new KafkaConsumer[String, String](props)
@@ -41,14 +40,14 @@ object KafkaUtils extends LazyLogging {
       consumer.close()
       currentTopics
     }.flatMap { ct =>
-      topicList.collect {
+      config.adapter.topicsIn.collect {
         case present if !ct.contains(present) =>
           present
       } match {
         case l if l.isEmpty =>
           Future.unit
         case missing =>
-          Future.failed(MqttProxyConfigError(missing.mkString("Missing topics: ", ",", ".")))
+          Future.failed(Error.ConfigError(missing.mkString("Missing topics: ", ",", ".")))
       }
     }
 

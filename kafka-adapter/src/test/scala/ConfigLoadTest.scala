@@ -14,9 +14,20 @@
  * limitations under the License.
  */
 
-package br.ufrj.gta.kafka.adapter
+import br.ufrj.gta.kafka.adapter.ConfigLoader
+import munit.FunSuite
 
-object Error {
-  final case class ConfigError(message: String) extends Exception(message)
+import scala.concurrent.ExecutionContextExecutor
 
+class ConfigLoadTest extends FunSuite {
+  implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.global
+
+  test("default loading") {
+    ConfigLoader().map { cfg =>
+      assert(cfg.adapter.topicsIn == List("sensor-in-1"))
+      assert(cfg.mqtt.user.isEmpty)
+      assert(cfg.mqtt.password.isEmpty)
+      assert(cfg.kafka.create)
+    }
+  }
 }

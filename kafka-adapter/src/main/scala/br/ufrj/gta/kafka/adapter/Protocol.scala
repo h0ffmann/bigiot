@@ -18,28 +18,34 @@ package br.ufrj.gta.kafka.adapter
 
 object Protocol {
 
-  val mask: String => String = str => str.map(_ => '*')
+  private val mask: String => String = str => str.map(_ => '*')
 
-  final case class MqttProxyConfig(
-      mqttHost: String,
-      mqttPort: Int,
-      mqttAuth: Option[(String, String)],
-      clientId: String,
-      kafkaHost: String,
-      kafkaPort: Int,
-      topicsIn: List[String],
-      topicsOut: List[String]
+  final case class AdapterConfig(topicsIn: List[String], clientId: String)
+  final case class MqttConfig(
+      host: String,
+      port: Int,
+      user: Option[String],
+      password: Option[String]
+  )
+  final case class KafkaConfig(host: String, port: Int, create: Boolean)
+
+  final case class KafkaAdapterConfig(
+      adapter: AdapterConfig,
+      mqtt: MqttConfig,
+      kafka: KafkaConfig
   ) {
+
+    def authTuple: Option[(String, String)] = mqtt.user.flatMap(u => mqtt.password.map(p => u -> p))
     override def toString: String =
-      Console.YELLOW + "MQTTProxyConfig: \n" + Console.RESET +
-          s"  mqttHost=$mqttHost \n" +
-          s"  mqttPort=$mqttPort \n" +
-          s"  mqttAuth=${mqttAuth.map(x => mask(x._1) -> mask(x._2))} \n" +
-          s"  clientId=$clientId \n" +
-          s"  kafkaHost=$kafkaHost \n" +
-          s"  kafkaPort=$kafkaPort \n" +
-          s"  topicIn=$topicsIn \n" +
-          s"  topicOut=$topicsOut"
+      Console.YELLOW + "\n KafkaAdapterConfig: \n" + Console.RESET +
+          s"  mqttHost=${mqtt.host} \n" +
+          s"  mqttPort=${mqtt.port} \n" +
+          s"  mqttAuth=${authTuple.map(x => x._1 -> mask(x._2))} \n" +
+          s"  clientId=${adapter.clientId} \n" +
+          s"  kafkaHost=${kafka.host} \n" +
+          s"  kafkaPort=${kafka.port} \n" +
+          s"  topicIn=${adapter.topicsIn} \n" //+
+    //s"  topicOut=$topicsOut"
 
   }
 }

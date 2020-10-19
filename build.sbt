@@ -3,6 +3,7 @@ import Dependencies._
 lazy val rootProjectName       = "bigiot"
 lazy val kafkaBridgeModuleName = "kafka-adapter"
 lazy val commonModuleName      = "common"
+lazy val serverModuleName      = "server"
 
 lazy val scala213 = "2.13.3"
 
@@ -20,6 +21,8 @@ lazy val common =
   project
     .in(file(commonModuleName))
     .withId(commonModuleName)
+    .configs(IntegrationTest)
+    .settings(Defaults.itSettings: _*)
     .settings(settings)
     .settings(
       libraryDependencies ++=
@@ -31,20 +34,29 @@ lazy val common =
           )
     )
     .settings(fork in run := true)
-    .settings(testFrameworks += new TestFramework("munit.Framework"))
+    .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin, ProtocPlugin)
+
+lazy val server =
+  project
+    .in(file(serverModuleName))
+    .withId(serverModuleName)
+    .settings(settings)
+    .settings()
+    .settings(fork in run := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin, ProtocPlugin)
 
 lazy val kafkaBridge =
   project
     .in(file(kafkaBridgeModuleName))
     .withId(kafkaBridgeModuleName)
+    .configs(IntegrationTest)
+    .settings(Defaults.itSettings: _*)
     .settings(settings)
     .settings(
       libraryDependencies ++=
-          Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.TestBundle).flatten
+          Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.TestBundle, Lib.ConfigBundle).flatten
     )
     .settings(fork in run := true)
-    .settings(Defaults.itSettings)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
     .dependsOn(common)
 
@@ -55,9 +67,10 @@ lazy val settings =
           Resolver.mavenLocal,
           Resolver.mavenCentral,
           Classpaths.typesafeReleases,
-          Classpaths.sbtPluginReleases //,
-//          Resolver.bintrayRepo("rainier", "maven"),
-//          Resolver.bintrayRepo("cibotech", "public")
+          Classpaths.sbtPluginReleases,
+          Resolver.bintrayRepo("rainier", "maven"),
+          Resolver.bintrayRepo("cibotech", "public"),
+          "Confluent Maven Repository" at "https://packages.confluent.io/maven"
         ),
     Compile / unmanagedSourceDirectories := Seq((Compile / scalaSource).value),
     cancelable in Global := true,
@@ -80,6 +93,7 @@ lazy val settings =
             url = url("https://github.com/h0ffmann")
           )
         ),
+    testFrameworks += new TestFramework("munit.Framework"),
     parallelExecution in Test := false,
     scalacOptions += "-Ywarn-unused"
   )

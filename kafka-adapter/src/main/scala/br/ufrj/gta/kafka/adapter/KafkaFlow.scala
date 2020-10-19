@@ -18,26 +18,24 @@ package br.ufrj.gta.kafka.adapter
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.kafka.{ ProducerMessage, ProducerSettings }
 import akka.kafka.scaladsl.Producer
-import akka.serialization.NullSerializer
+import akka.kafka.{ ProducerMessage, ProducerSettings }
 import akka.stream.alpakka.mqtt.scaladsl.MqttMessageWithAck
-import akka.stream.scaladsl.{ Flow, Source }
+import akka.stream.scaladsl.Flow
+import br.ufrj.gta.kafka.adapter.Protocol.KafkaConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import MQTTReactiveSource.logger
-import Protocol.MqttProxyConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
 object KafkaFlow extends LazyLogging {
 
   def createProducerSettings(
-      mqttProxyConfig: MqttProxyConfig
+      kafkaConfig: KafkaConfig
   )(implicit sys: ActorSystem): ProducerSettings[String, String] = {
     val config: Config = sys.settings.config.getConfig("akka.kafka.producer")
     ProducerSettings[String, String](config, new StringSerializer, new StringSerializer)
-      .withBootstrapServers(s"${mqttProxyConfig.kafkaHost}:${mqttProxyConfig.kafkaPort}")
+      .withBootstrapServers(s"${kafkaConfig.host}:${kafkaConfig.port}")
   }
 
   def apply(
@@ -47,7 +45,7 @@ object KafkaFlow extends LazyLogging {
       .map { msg =>
         ProducerMessage.single(
           new ProducerRecord[String, String](
-            msg.message.topic + "aaa",
+            msg.message.topic,
             msg.message.payload.toString()
           ),
           msg

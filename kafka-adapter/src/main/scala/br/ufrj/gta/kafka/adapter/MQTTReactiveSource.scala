@@ -17,15 +17,16 @@
 package br.ufrj.gta.kafka.adapter
 
 import akka.NotUsed
-import akka.stream.alpakka.mqtt.{ MqttConnectionSettings, MqttQoS, MqttSubscriptions }
+import akka.stream.RestartSettings
 import akka.stream.alpakka.mqtt.scaladsl.{ MqttMessageWithAck, MqttSource }
-import akka.stream.scaladsl.{ RestartSource, RestartWithBackoffSource, Source }
+import akka.stream.alpakka.mqtt.{ MqttConnectionSettings, MqttQoS, MqttSubscriptions }
+import akka.stream.scaladsl.{ RestartSource, Source }
+import br.ufrj.gta.kafka.adapter.Protocol.KafkaAdapterConfig
 import com.typesafe.scalalogging.LazyLogging
-import Protocol.MqttProxyConfig
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
 
 object MQTTReactiveSource extends LazyLogging {
@@ -34,32 +35,34 @@ object MQTTReactiveSource extends LazyLogging {
     MqttConnectionSettings(
       urlConn,
       id,
-      new MemoryPersistence
+      new MemoryPersistence()
     )
 
   def apply(
-      mqttProxyConfig: MqttProxyConfig
+      config: KafkaAdapterConfig
   )(implicit ec: ExecutionContext): Source[MqttMessageWithAck, NotUsed] = {
 
-    val urlConnStr    = s"tcp://${mqttProxyConfig.mqttHost}:${mqttProxyConfig.mqttPort}"
-    val subscriptions = mqttProxyConfig.topicsIn.map(t => t -> MqttQoS.atLeastOnce).toMap
-    val authUser      = mqttProxyConfig.mqttAuth.map(_._1).getOrElse("")
-    val authPassword  = mqttProxyConfig.mqttAuth.map(_._2).getOrElse("")
+    val urlConnStr    = s"tcp://${config.mqtt.host}:${config.mqtt.port}"
+    val subscriptions = config.adapter.topicsIn.map(t => t -> MqttQoS.atLeastOnce).toMap
+    val authUser      = config.authTuple.map(_._1).getOrElse("")
+    val authPassword  = config.authTuple.map(_._2).getOrElse("")
 
-    val connectionSettings = createConnectionSettings(urlConnStr, mqttProxyConfig.clientId)
+    val connectionSettings = createConnectionSettings(urlConnStr, config.adapter.clientId)
       .withAutomaticReconnect(true)
       .withAuth(authUser, authPassword)
 
+    val recoverSettings = RestartSettings(
+      minBackoff = 15.seconds,
+      maxBackoff = 2.hours,
+      randomFactor = 0.2
+    ).withMaxRestarts(20, 5.minutes) // limits the amount of restarts to 20 within 5 minutes
+
     RestartSource
-      .onFailuresWithBackoff(
-        minBackoff = 15.seconds,
-        maxBackoff = 2.hours,
-        randomFactor = 0
-      ) { () =>
+      .withBackoff(recoverSettings) { () =>
         MqttSource
           .atLeastOnce(
             connectionSettings
-              .withClientId(clientId = mqttProxyConfig.clientId),
+              .withClientId(clientId = config.adapter.clientId),
             MqttSubscriptions(subscriptions),
             bufferSize = 8
           )
