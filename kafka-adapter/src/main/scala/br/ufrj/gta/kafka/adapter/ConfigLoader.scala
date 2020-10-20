@@ -20,6 +20,7 @@ import br.ufrj.gta.kafka.adapter.Error.ConfigError
 import br.ufrj.gta.kafka.adapter.Protocol.KafkaAdapterConfig
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
+
 import scala.concurrent.{ ExecutionContext, Future }
 
 object ConfigLoader {

@@ -30,3 +30,4 @@ result*
 *bsp
 .bsp/sbt.json
 grafana/
+*application.log

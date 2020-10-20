@@ -56,6 +56,7 @@ lazy val kafkaBridge =
       libraryDependencies ++=
           Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.TestBundle, Lib.ConfigBundle).flatten
     )
+    .settings(addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
     .settings(fork in run := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
     .dependsOn(common)

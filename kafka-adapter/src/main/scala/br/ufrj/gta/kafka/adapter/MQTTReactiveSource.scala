@@ -43,7 +43,7 @@ object MQTTReactiveSource extends LazyLogging {
   )(implicit ec: ExecutionContext): Source[MqttMessageWithAck, NotUsed] = {
 
     val urlConnStr    = s"tcp://${config.mqtt.host}:${config.mqtt.port}"
-    val subscriptions = config.adapter.topicsIn.map(t => t -> MqttQoS.atLeastOnce).toMap
+    val subscriptions = config.adapter.topicsIn.map(t => t -> MqttQoS.exactlyOnce).toMap
     val authUser      = config.authTuple.map(_._1).getOrElse("")
     val authPassword  = config.authTuple.map(_._2).getOrElse("")
 
@@ -55,7 +55,7 @@ object MQTTReactiveSource extends LazyLogging {
       minBackoff = 15.seconds,
       maxBackoff = 2.hours,
       randomFactor = 0.2
-    ).withMaxRestarts(20, 5.minutes) // limits the amount of restarts to 20 within 5 minutes
+    ).withMaxRestarts(20, 5.minutes)
 
     RestartSource
       .withBackoff(recoverSettings) { () =>
@@ -86,7 +86,7 @@ object MQTTReactiveSource extends LazyLogging {
           )
       }
       .map { x =>
-        logger.debug(Console.BOLD + s"Message from source: ${x.message}" + Console.RESET)
+        //logger.debug(Console.BOLD + s"Message from source: ${x.message}" + Console.RESET)
         x
       }
   }

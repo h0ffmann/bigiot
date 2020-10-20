@@ -20,7 +20,7 @@ object Protocol {
 
   private val mask: String => String = str => str.map(_ => '*')
 
-  final case class AdapterConfig(topicsIn: List[String], clientId: String)
+  final case class AdapterConfig(topicsIn: List[String], clientId: String, parallelism: Int)
   final case class MqttConfig(
       host: String,
       port: Int,
@@ -38,6 +38,7 @@ object Protocol {
     def authTuple: Option[(String, String)] = mqtt.user.flatMap(u => mqtt.password.map(p => u -> p))
     override def toString: String =
       Console.YELLOW + "\n KafkaAdapterConfig: \n" + Console.RESET +
+          s"  parallelism=${adapter.parallelism} \n" +
           s"  mqttHost=${mqtt.host} \n" +
           s"  mqttPort=${mqtt.port} \n" +
           s"  mqttAuth=${authTuple.map(x => x._1 -> mask(x._2))} \n" +
