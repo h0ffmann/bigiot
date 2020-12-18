@@ -19,15 +19,15 @@ import munit.FunSuite
 
 import scala.concurrent.ExecutionContextExecutor
 
-class ConfigLoadTest extends FunSuite {
+class ConfigLoadSpec extends FunSuite {
   implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.global
 
   test("default loading") {
     ConfigLoader().map { cfg =>
-      assert(cfg.adapter.topicsIn == List("sensor-in-1"))
-      assert(cfg.mqtt.user.isEmpty)
-      assert(cfg.mqtt.password.isEmpty)
-      assert(cfg.kafka.create)
+      assertEquals(cfg.adapter.topicsIn, List("sensor-in-1"))
+      assertEquals(cfg.mqtt.user, None)
+      assertEquals(cfg.mqtt.password, None)
+      assertEquals(cfg.kafka.create, true)
     }
   }
 }

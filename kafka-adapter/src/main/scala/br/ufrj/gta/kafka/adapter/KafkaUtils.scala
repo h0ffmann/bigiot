@@ -37,7 +37,6 @@ object KafkaUtils extends LazyLogging {
       props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
       val consumer      = new KafkaConsumer[String, String](props)
       val currentTopics = consumer.listTopics().keySet()
-      //
       consumer.close()
       currentTopics
     }.flatMap { ct =>

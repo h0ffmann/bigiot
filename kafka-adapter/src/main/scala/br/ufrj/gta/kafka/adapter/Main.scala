@@ -20,9 +20,11 @@ import java.util.UUID
 
 import akka.Done
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
-import akka.stream.scaladsl.{ Keep, Sink }
+import akka.http.scaladsl.Http
+import akka.stream.scaladsl.{ Keep, Sink, Source }
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ ExecutionContext, Future }
 
 object Main extends LazyLogging {
@@ -47,6 +49,18 @@ object Main extends LazyLogging {
         .create(cfg, producerCfg)
         .toMat(Sink.seq)(Keep.left)
         .run()
+
+      _ <- Http()
+            .newServerAt(cfg.adapter.metricHost, cfg.adapter.metricPort)
+            .bindFlow(Metrics.route)
+            .map(
+              binding => logger.info(s"Listening for HTTP connections on ${binding.localAddress}")
+            )
+
+      _ = Source(1 to 10000)
+        .throttle(1, 1.second)
+        .map(_ => Metrics.dummyCounter.labels("DUMMY_DEVICE").inc(1))
+        .runWith(Sink.ignore)
 
       _ = logger.info("Kafka adapter stream initialized.")
 

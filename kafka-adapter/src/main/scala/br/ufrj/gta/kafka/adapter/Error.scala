@@ -19,4 +19,6 @@ package br.ufrj.gta.kafka.adapter
 object Error {
   final case class ConfigError(message: String) extends Exception(message)
 
+  final case class ParseError(message: String, error: String, topic: String, time: Long)
+
 }

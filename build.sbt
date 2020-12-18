@@ -41,9 +41,13 @@ lazy val server =
     .in(file(serverModuleName))
     .withId(serverModuleName)
     .settings(settings)
-    .settings()
+    .settings(
+      libraryDependencies ++=
+          Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.ZioBundle, Lib.Http4sBundle).flatten
+    )
     .settings(fork in run := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin, ProtocPlugin)
+    .dependsOn(common, kafkaBridge)
 
 lazy val kafkaBridge =
   project
@@ -54,7 +58,13 @@ lazy val kafkaBridge =
     .settings(settings)
     .settings(
       libraryDependencies ++=
-          Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.TestBundle, Lib.ConfigBundle).flatten
+          Seq(
+            Lib.AkkaBundle,
+            Lib.LogBundle,
+            Lib.TestBundle,
+            Lib.ConfigBundle,
+            Lib.MetricsBundle
+          ).flatten
     )
     .settings(addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
     .settings(fork in run := true)

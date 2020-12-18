@@ -10,9 +10,29 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  - job_name: app
+  - job_name: kafka-adapter
     scrape_interval: 5s
     scrape_timeout: 2s
     honor_labels: true
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: [ 'localhost:8080' ]
+
+  - job_name: pushgateway
+    scrape_interval: 5s
+    honor_labels: true
+    static_configs:
+      - targets: [ 'localhost:9091' ]
+
+  - job_name: kafka
+    scrape_interval: 5s
+    honor_labels: true
+    static_configs:
+      - targets: [ 'localhost:9999' ]
+
+#  - job_name: app
+#    scrape_interval: 5s
+#    scrape_timeout: 2s
+#    honor_labels: true
+#    static_configs:
+#      - targets: ['localhost:8080']
+
