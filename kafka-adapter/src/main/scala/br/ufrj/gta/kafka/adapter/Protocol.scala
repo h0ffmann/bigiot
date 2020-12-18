@@ -24,6 +24,7 @@ object Protocol {
       topicsIn: List[String],
       clientId: String,
       parallelism: Int,
+      bufferSize: Int = 1,
       metricHost: String,
       metricPort: Int
   )
@@ -43,7 +44,7 @@ object Protocol {
 
     def authTuple: Option[(String, String)] = mqtt.user.flatMap(u => mqtt.password.map(p => u -> p))
     override def toString: String =
-      Console.YELLOW + "\n KafkaAdapterConfig: \n" + Console.RESET +
+      "\n KafkaAdapterConfig: \n" +
           s"  metricHost=${adapter.metricHost} \n" +
           s"  metricPort=${adapter.metricPort} \n" +
           s"  parallelism=${adapter.parallelism} \n" +

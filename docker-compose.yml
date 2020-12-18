@@ -10,7 +10,6 @@ services:
     restart: on-failure
     network_mode: host
 
-
   prometheus:
     image: prom/prometheus:latest
     user: root

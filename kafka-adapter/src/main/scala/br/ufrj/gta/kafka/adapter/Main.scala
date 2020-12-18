@@ -17,25 +17,36 @@
 package br.ufrj.gta.kafka.adapter
 
 import java.util.UUID
-
 import akka.Done
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
 import akka.http.scaladsl.Http
 import akka.stream.scaladsl.{ Keep, Sink, Source }
-import com.typesafe.scalalogging.LazyLogging
+import br.ufrj.gta.common.log.ColorfulLogs
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ ExecutionContext, Future }
+import mainargs.{ arg, main, ParserForMethods }
 
-object Main extends LazyLogging {
+object Main extends ColorfulLogs {
 
-  def main(args: Array[String]): Unit = {
+  @main
+  def run(
+      @arg(short = 'p', doc = "Parallelism level")
+      parallelism: Int = 1,
+      @arg(short = 'b', doc = "Buffer size before backpressure applies")
+      bufferSize: Int = 1
+  ): Unit = {
+    logger.info(s"PARALLELISM LEVEL: $parallelism".y)
+    logger.info(s"BUFFER SIZE LEVEL: $bufferSize".y)
 
     implicit val sys: ActorSystem     = ActorSystem(s"kafka-adapter-${UUID.randomUUID()}")
     implicit val ec: ExecutionContext = sys.dispatcher
 
     (for {
       cfg <- ConfigLoader()
+      cfgWithArgs = cfg
+        .copy(adapter = cfg.adapter.copy(parallelism = parallelism, bufferSize = bufferSize))
+      _ = logger.info(cfgWithArgs.toString.y)
 
       _ <- if (cfg.kafka.create) {
             Future.unit
@@ -46,7 +57,7 @@ object Main extends LazyLogging {
       producerCfg = KafkaFlow.createProducerSettings(cfg.kafka)
 
       _ = AdapterStream
-        .create(cfg, producerCfg)
+        .create(cfg.copy(adapter = cfg.adapter.copy(parallelism = parallelism)), producerCfg)
         .toMat(Sink.seq)(Keep.left)
         .run()
 
@@ -82,5 +93,7 @@ object Main extends LazyLogging {
         }
       }
   }
+
+  def main(args: Array[String]): Unit = ParserForMethods(this).runOrExit(args)
 
 }

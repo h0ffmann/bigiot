@@ -59,9 +59,11 @@ object Dependencies {
     lazy val zio            = "dev.zio" %% "zio" % zioVersion
     lazy val zioInteropCats = "dev.zio" %% "zio-interop-cats" % "2.2.0.1"
 
+    lazy val mainArgs = "com.lihaoyi" %% "mainargs" % "0.1.4"
+
     val ZioBundle     = Seq(zio, zioInteropCats)
     val Http4sBundle  = Seq(http4sBlazeServer, http4sDsl, http4sCirce, circeGeneric, quicklens)
-    val ConfigBundle  = Seq(pureConfig)
+    val ConfigBundle  = Seq(pureConfig, mainArgs)
     val TestBundle    = Seq(munit, scalaTest) //, kafkas4sTest)
     val StatsBundle   = Seq(gen) //, rainier, evilPlot)
     val SerBundle     = Seq(protoBuffer, csv, csvGeneric, json4sProto)
