@@ -8,9 +8,7 @@ services:
     ports:
       - 9091:9091
     restart: on-failure
-#    networks:
-#      - "monitoring-network"
-    network_mode: "host"
+    network_mode: host
 
 
   prometheus:
@@ -28,9 +26,7 @@ services:
     ports:
       - 9090:9090
     restart: on-failure
-    #    networks:
-    #      - "monitoring-network"
-    network_mode: "host"
+    network_mode: host
 
   grafana:
     container_name: grafana
@@ -42,9 +38,7 @@ services:
       - prometheus
     ports:
       - 3000:3000
-    #    networks:
-    #      - "monitoring-network"
-    network_mode: "host"
+    network_mode: host
 
     # admin public
   emqx:
@@ -55,14 +49,12 @@ services:
       - pushgateway
     environment:
       - EMQX_LOADED_PLUGINS=emqx_recon,emqx_retainer,emqx_management,emqx_dashboard,emqx_prometheus
-      - EMQX_PROMETHEUS__PUSH__GATEWAY__SERVER=http://pushgateway:9091
+      - EMQX_PROMETHEUS__PUSH__GATEWAY__SERVER=http://localhost:9091
       - EMQX_PROMETHEUS__INTERVAL=5000
     ports:
       - 18083:18083
       - 1883:1883
-    #    networks:
-    #      - "monitoring-network"
-    network_mode: "host"
+    network_mode: host
 
   zk:
     image: zookeeper:3.4.10
@@ -70,9 +62,7 @@ services:
     restart: on-failure
     ports:
       - 2181:2181
-    #    networks:
-    #      - "monitoring-network"
-    network_mode: "host"
+    network_mode: host
 
   kafka:
     image: wurstmeister/kafka:2.11-1.1.1
@@ -94,9 +84,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_OPTS: "-javaagent:/opt/kafka/metrics/jmx_prometheus_javaagent-0.14.0.jar=9999:/opt/kafka/metrics/config.yml"
-    #    networks:
-    #      - "monitoring-network"
-    network_mode: "host"
+    network_mode: host
 
   kafka-manager:
     container_name: kafka-manager
@@ -111,12 +99,19 @@ services:
       - APPLICATION_SECRET=letmein
     ports:
       - 9000:9000
-        #    networks:
-        #      - "monitoring-network"
-    network_mode: "host"
+    network_mode: host
 
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    depends_on:
+      - prometheus
+    network_mode: host
 
-#networks:
-#  monitoring-network:
-#    driver: bridge
 
