@@ -27,6 +27,8 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ ExecutionContext, Future }
 import mainargs.{ arg, main, ParserForMethods }
 
+import scala.language.reflectiveCalls
+
 object Main extends ColorfulLogs {
 
   @main

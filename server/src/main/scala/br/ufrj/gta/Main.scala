@@ -15,7 +15,7 @@
  */
 
 package br.ufrj.gta
-import br.ufrj.gta.api.{ SamplerService }
+import br.ufrj.gta.api.SamplerService
 import zio._
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl

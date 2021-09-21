@@ -18,6 +18,8 @@ package br.ufrj.gta.common.log
 
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.language.implicitConversions
+
 trait ColorfulLogs extends LazyLogging {
 
   implicit def colorful(s: String): Object {

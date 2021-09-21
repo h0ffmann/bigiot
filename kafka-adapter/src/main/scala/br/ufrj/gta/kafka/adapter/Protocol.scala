@@ -43,6 +43,7 @@ object Protocol {
   ) {
 
     def authTuple: Option[(String, String)] = mqtt.user.flatMap(u => mqtt.password.map(p => u -> p))
+
     override def toString: String =
       "\n KafkaAdapterConfig: \n" +
           s"  metricHost=${adapter.metricHost} \n" +

@@ -5,8 +5,8 @@ services:
   pushgateway:
     image: prom/pushgateway:latest
     container_name: pushgateway
-    ports:
-      - 9091:9091
+#    ports:
+#      - "9091:9091"
     restart: on-failure
     network_mode: host
 
@@ -22,8 +22,8 @@ services:
     command:
       - '--config.file=/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/data'
-    ports:
-      - 9090:9090
+#    ports:
+#      - "9090:9090"
     restart: on-failure
     network_mode: host
 
@@ -35,8 +35,8 @@ services:
       - ./grafana:/var/lib/grafana
     depends_on:
       - prometheus
-    ports:
-      - 3000:3000
+#    ports:
+#      - "3000:3000"
     network_mode: host
 
     # admin public
@@ -50,26 +50,26 @@ services:
       - EMQX_LOADED_PLUGINS=emqx_recon,emqx_retainer,emqx_management,emqx_dashboard,emqx_prometheus
       - EMQX_PROMETHEUS__PUSH__GATEWAY__SERVER=http://localhost:9091
       - EMQX_PROMETHEUS__INTERVAL=5000
-    ports:
-      - 18083:18083
-      - 1883:1883
+#    ports:
+#      - "18083:18083"
+#      - "1883:1883"
     network_mode: host
 
   zk:
     image: zookeeper:3.4.10
     container_name: zk
     restart: on-failure
-    ports:
-      - 2181:2181
+#    ports:
+#      - "2181:2181"
     network_mode: host
 
   kafka:
     image: wurstmeister/kafka:2.11-1.1.1
     container_name: kafka
     restart: on-failure
-    ports:
-      - 9092:9092
-      - 9999:9999
+#    ports:
+#      - "9092:9092"
+#      - "9999:9999"
     depends_on:
       - zk
     volumes:
@@ -94,10 +94,10 @@ services:
       - zk
     command: -Dconfig.file=/kafka-manager/conf/application.conf -Dapplication.home=/kafkamanager
     environment:
-      - ZK_HOSTS=zk:2181
+      - ZK_HOSTS=localhost:2181
       - APPLICATION_SECRET=letmein
-    ports:
-      - 9000:9000
+#    ports:
+#      - "9000:9000"
     network_mode: host
 
   node_exporter:

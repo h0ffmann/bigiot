@@ -11,7 +11,7 @@ lazy val root =
   project
     .in(file("."))
     .withId(rootProjectName)
-    .aggregate(kafkaBridge, common)
+    .aggregate(kafkaBridge, common, server)
     .settings(
       crossScalaVersions := Nil,
       publish / skip := true
@@ -29,11 +29,11 @@ lazy val common =
           Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.SerBundle, Lib.StatsBundle, Lib.TestBundle).flatten
     )
     .settings(
-      PB.targets in Compile := Seq(
-            scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
+       Compile / PB.targets := Seq(
+            scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
           )
     )
-    .settings(fork in run := true)
+    .settings(run / fork := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin, ProtocPlugin)
 
 lazy val server =
@@ -45,7 +45,7 @@ lazy val server =
       libraryDependencies ++=
           Seq(Lib.AkkaBundle, Lib.LogBundle, Lib.ZioBundle, Lib.Http4sBundle).flatten
     )
-    .settings(fork in run := true)
+    .settings(run / fork := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin, ProtocPlugin)
     .dependsOn(common, kafkaBridge)
 
@@ -67,7 +67,7 @@ lazy val kafkaBridge =
           ).flatten
     )
     .settings(addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
-    .settings(fork in run := true)
+    .settings(run / fork := true)
     .enablePlugins(AssemblyPlugin, AutomateHeaderPlugin, BuildInfoPlugin)
     .dependsOn(common)
 
@@ -84,7 +84,7 @@ lazy val settings =
           "Confluent Maven Repository" at "https://packages.confluent.io/maven"
         ),
     Compile / unmanagedSourceDirectories := Seq((Compile / scalaSource).value),
-    cancelable in Global := true,
+    Global / cancelable := true,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     scalafmtOnCompile := true,
@@ -94,7 +94,7 @@ lazy val settings =
     organization := "me.mhoffmann",
     organizationName := "Matheus Hoffmann",
     startYear := Some(2020),
-    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("https://www.gta.ufrj.br/")),
     developers := List(
           Developer(
@@ -105,7 +105,7 @@ lazy val settings =
           )
         ),
     testFrameworks += new TestFramework("munit.Framework"),
-    parallelExecution in Test := false,
+    Test / parallelExecution := false,
     scalacOptions += "-Ywarn-unused"
   )
 
